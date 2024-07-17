@@ -33,10 +33,24 @@ export const validationSchema = object().shape({
             'isNumber',
             IS_NUMBER_MSG,
             (value: string) => !isNaN(Number(value)),
+        )
+        .test(
+            'isMinimumAge',
+            'Minimum age is 18',
+            (value: string) => Number(value) >= 18,
         ),
     // TASK 3:
     // - Implement a validation rule for the 'interests' field.
     // - The validation should ensure that at least one option is selected.
     // - If no option is selected, display an error message.
-    interests: mixed().notRequired(),
+    interests: mixed<
+        { id: string; isChecked: boolean; label: string }[]
+    >().test(
+        'hasSelectedOptions',
+        'At least one option must be selected',
+        value =>
+            Array.isArray(value) &&
+            value.length > 0 &&
+            value.some(option => option.isChecked),
+    ),
 })
