@@ -34,7 +34,11 @@ export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
     const internalOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const changedOptions = options.map(option =>
             option.id === event.target.id
-                ? { ...option, checked: event.target.checked }
+                ? {
+                      ...option,
+                      checked: event.target.checked,
+                      isChecked: event.target.checked,
+                  }
                 : option,
         )
         onChange(changedOptions)
@@ -59,6 +63,7 @@ export const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
                                     <Checkbox
                                         {...option}
                                         id={checkboxId}
+                                        name={option.label}
                                         onChange={internalOnChange}
                                         color={error ? 'error' : 'primary'}
                                     />
