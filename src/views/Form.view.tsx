@@ -11,6 +11,21 @@ import { validationSchema } from './Form.config'
 
 export const FormView = () => {
     const answers = useAnswersStore(state => state.getAnswers())
+    const transformedOptions = answers.interests.map(interest => {
+        const key = Object.keys(interest)[0]
+        return {
+            id: key,
+            checked: interest[Number(key)].isChecked,
+            ...interest[Number(key)],
+        }
+    }) as {
+        id: string
+        isChecked: boolean
+        label: string
+        checked: boolean
+    }[]
+
+    console.log('transformedOptions', transformedOptions)
 
     const {
         control,
@@ -19,6 +34,16 @@ export const FormView = () => {
     } = useForm({
         mode: 'onChange',
         resolver: yupResolver(validationSchema),
+        defaultValues: {
+            name: answers.name,
+            mail: answers.mail,
+            age: answers.age,
+            interests: transformedOptions,
+        },
+        values: {
+            ...answers,
+            interests: transformedOptions,
+        },
     })
 
     const updateAnswersMutation = useUpdateAnswers()
@@ -28,7 +53,16 @@ export const FormView = () => {
             name: formData.name,
             mail: formData.mail,
             age: formData.age,
-            interests: [],
+            interests:
+                formData?.interests?.map(interest => {
+                    const key = interest.id
+                    return {
+                        [key]: {
+                            isChecked: interest.isChecked,
+                            label: interest.label,
+                        },
+                    }
+                }) ?? [],
         })
     })
 
@@ -91,12 +125,17 @@ export const FormView = () => {
                     CheckboxGroup's options. This could be detrimental
                     to your final assessment.
                 */}
-                {/* <Controller
-                    render={() => (
+                <Controller
+                    name="interests"
+                    control={control}
+                    render={({ field: { onChange, value }, fieldState }) => (
                         <CheckboxGroup
+                            error={Boolean(fieldState.error)}
+                            onChange={onChange}
+                            options={value}
                         />
                     )}
-                /> */}
+                />
                 <Button
                     variant="contained"
                     disabled={!isValid}
